@@ -1,0 +1,71 @@
+# === Python/Django ===
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+*.db
+*.sqlite3
+db.sqlite3
+env/
+venv/
+.env
+*.log
+
+# Django specific
+staticfiles/
+media/
+*.pot
+*.py[cod]
+local_settings.py
+settings_local.py
+
+# === Node.js ===
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# === Flutter (if used for mobile frontend) ===
+.dart_tool/
+.flutter-plugins
+.packages
+.pub-cache/
+.pub/
+build/
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+android/.gradle/
+android/app/build/
+*.iml
+
+# === VS Code / IDEs ===
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# === System files ===
+.DS_Store
+Thumbs.db
+ehthumbs.db
+desktop.ini
+
+# === Compiled ===
+*.so
+*.dll
+*.exe
+*.o
+*.a
+*.out
+
+# === Video Recordings / Media Cache (if temporary) ===
+recordings/
+*.mp4
+*.avi
+*.mov
+
+# === Jetson/Edge AI temp files ===
+*.engine
+*.onnx
+__cache__/
+temp_models/

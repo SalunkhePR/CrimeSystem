@@ -1,0 +1,346 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Admin Login</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color-light: #f8f9fa;
+            --bg-color-dark: #0f1419;
+            --card-bg-light: #ffffff;
+            --card-bg-dark: #1c2526;
+            --text-color-light: #212529;
+            --text-color-dark: #d8dee9;
+            --highlight-light: #007bff;
+            --highlight-dark: #00d4ff;
+            --accent-glow: rgba(0, 212, 255, 0.5);
+            --border-color-dark: #37444e;
+            --toggle-bg-light: rgba(0, 123, 255, 0.1);
+            --btn-bg-light: linear-gradient(45deg, #007bff, #0056b3);
+            --btn-bg-dark: linear-gradient(45deg, #00d4ff, #0099cc);
+            --btn-hover-light: #0056b3;
+            --btn-hover-dark: #00aaff;
+            --placeholder-light: #6c757d;
+            --placeholder-dark: #a0cfff;
+        }
+
+        body {
+            background-color: var(--bg-color-light);
+            color: var(--text-color-light);
+            transition: all 0.3s ease;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        [data-theme="dark"] body {
+            background-color: var(--bg-color-dark);
+            color: var(--text-color-dark);
+        }
+
+        .container {
+            max-width: 400px;
+            padding: 0 1rem;
+        }
+
+        .card {
+            background-color: var(--card-bg-light);
+            border-radius: 15px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        [data-theme="dark"] .card {
+            background: linear-gradient(145deg, #2a3439, #1c2526);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), 0 0 10px var(--accent-glow);
+            border: 1px solid var(--border-color-dark);
+        }
+
+        .card-header {
+            background: linear-gradient(45deg, #343a40, #495057);
+            color: #ffffff;
+            text-align: center;
+            padding: 20px 0;
+            border-top-left-radius: 15px;
+            border-top-right-radius: 15px;
+            font-weight: 600;
+            font-size: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        [data-theme="dark"] .card-header {
+            background: linear-gradient(145deg, #2a3439, #1c2526);
+            text-shadow: 0 0 8px var(--accent-glow);
+        }
+
+        .card-body {
+            padding: 30px;
+            position: relative;
+        }
+
+        .form-control {
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            height: 40px;
+            transition: all 0.2s ease;
+            background-color: transparent;
+            color: var(--text-color-light);
+        }
+
+        [data-theme="dark"] .form-control {
+            background-color: rgba(28, 37, 38, 0.8);
+            color: var(--text-color-dark);
+            border: 1px solid var(--border-color-dark);
+            box-shadow: 0 0 5px var(--accent-glow);
+        }
+
+        .form-control::placeholder {
+            color: var(--placeholder-light);
+            opacity: 1;
+            transition: color 0.3s ease;
+        }
+
+        [data-theme="dark"] .form-control::placeholder {
+            color: var(--placeholder-dark);
+        }
+
+        .form-control:focus {
+            border-color: var(--highlight-light);
+            box-shadow: 0 0 8px rgba(0, 123, 255, 0.25);
+            outline: none;
+        }
+
+        [data-theme="dark"] .form-control:focus {
+            border-color: var(--highlight-dark);
+            box-shadow: 0 0 8px var(--accent-glow);
+        }
+
+        .btn-dark {
+            background: var(--btn-bg-light);
+            border: none;
+            font-weight: 600;
+            border-radius: 8px;
+            padding: 12px 0;
+            font-size: 16px;
+            transition: all 0.2s ease;
+            color: #ffffff;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        [data-theme="dark"] .btn-dark {
+            background: var(--btn-bg-dark);
+            box-shadow: 0 0 10px var(--accent-glow);
+            color: var(--bg-color-dark);
+        }
+
+        .btn-dark:hover {
+            background: var(--btn-hover-light);
+            transform: translateY(-2px);
+            color: #ffffff;
+        }
+
+        [data-theme="dark"] .btn-dark:hover {
+            background: var(--btn-hover-dark);
+            box-shadow: 0 0 15px var(--accent-glow);
+            color: var(--bg-color-dark);
+        }
+
+        .btn-dark:disabled {
+            background: #e9ecef;
+            color: #6c757d;
+            cursor: not-allowed;
+            opacity: 0.65;
+            transform: none;
+        }
+
+        [data-theme="dark"] .btn-dark:disabled {
+            background: #3b4252;
+            color: #a0cfff;
+        }
+
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+        }
+
+        [data-theme="dark"] .alert-danger {
+            background-color: #4a2529;
+            color: #ff4a6b;
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            font-size: 1.4rem;
+            cursor: pointer;
+            transition: transform 0.3s ease, color 0.3s ease, background-color 0.3s ease;
+            color: var(--text-color-light);
+            padding: 0.5rem;
+            border-radius: 50%;
+            background-color: var(--toggle-bg-light);
+            outline: none;
+            z-index: 1001;
+        }
+
+        [data-theme="dark"] .theme-toggle {
+            color: var(--text-color-dark);
+            background-color: rgba(28, 37, 38, 0.5);
+        }
+
+        .theme-toggle:hover, .theme-toggle:focus {
+            transform: rotate(360deg);
+            color: var(--highlight-dark);
+            background-color: rgba(0, 123, 255, 0.2);
+            box-shadow: 0 0 10px var(--highlight-light);
+        }
+
+        [data-theme="dark"] .theme-toggle:hover, [data-theme="dark"] .theme-toggle:focus {
+            background-color: rgba(0, 212, 255, 0.2);
+            box-shadow: 0 0 10px var(--highlight-dark);
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: var(--text-color-light);
+        }
+
+        [data-theme="dark"] .form-label {
+            color: var(--text-color-dark);
+        }
+
+        .loading-overlay {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 15px;
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .loading-spinner {
+            width: 2rem;
+            height: 2rem;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--highlight-light);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        [data-theme="dark"] .loading-spinner {
+            border: 3px solid var(--border-color-dark);
+            border-top: 3px solid var(--highlight-dark);
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 1.5rem;
+            }
+
+            .card-body {
+                padding: 20px;
+            }
+
+            .theme-toggle {
+                top: 10px;
+                right: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Theme Toggle -->
+    <span class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle light/dark theme">
+        <i id="theme-icon" class="bi bi-moon-fill"></i>
+    </span>
+
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h4>Admin Login</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="loading-overlay" id="formLoadingOverlay">
+                            <div class="loading-spinner"></div>
+                        </div>
+                        <form method="POST" id="login-form">
+                            {% csrf_token %}
+                            <fieldset>
+                                <legend class="visually-hidden">Admin Login</legend>
+                                <div class="mb-3">
+                                    <label for="username" class="form-label">Username</label>
+                                    <input type="text" id="username" name="username" class="form-control" placeholder="Enter username" required minlength="3" pattern="[A-Za-z0-9]+" title="Username must be alphanumeric and at least 3 characters" />
+                                </div>
+                                <div class="mb-3">
+                                    <label for="password" class="form-label">Password</label>
+                                    <input type="password" id="password" name="password" class="form-control" placeholder="Enter password" required />
+                                </div>
+                                <button type="submit" class="btn btn-dark w-100">Login</button>
+                                {% if messages %}
+                                    {% for msg in messages %}
+                                        <div class="alert alert-danger" role="alert">{{ msg }}</div>
+                                    {% endfor %}
+                                {% endif %}
+                            </fieldset>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Theme Management
+        const toggleTheme = () => {
+            const html = document.documentElement;
+            const currentTheme = html.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            html.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            document.getElementById('theme-icon').className = 
+                newTheme === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
+        };
+
+        // Initialize theme
+        (() => {
+            const savedTheme = localStorage.getItem('theme') || 'light';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            document.getElementById('theme-icon').className = 
+                savedTheme === 'dark' ? 'bi bi-sun-fill' : 'bi bi-moon-fill';
+        })();
+
+        // Prevent multiple form submissions and show spinner
+        document.getElementById('login-form').addEventListener('submit', function(e) {
+            const submitButton = document.querySelector('button[type="submit"]');
+            submitButton.disabled = true;
+            document.getElementById('formLoadingOverlay').style.display = 'flex';
+        });
+    </script>
+</body>
+</html>
