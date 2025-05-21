@@ -35,7 +35,7 @@
             </div>
             <div class="stat-card">
                 <h3>Alerts Today</h3>
-                <p>{{ alerts_today|default:"0" }}</p>
+                <p id="alerts-today">{{ alerts_today|default:"0" }}</p>
             </div>
             <div class="stat-card">
                 <h3>System Uptime</h3>
@@ -89,13 +89,21 @@
         <!-- Alerts Panel -->
         <section class="alerts">
             <h2>Recent Alerts</h2>
-            <ul>
-                {% for alert in recent_alerts %}
-                    <li class="alert-{{ alert.type|lower }}">{{ alert.icon }} {{ alert.message }}</li>
-                {% empty %}
-                    <li>No recent alerts.</li>
-                {% endfor %}
-            </ul>
+            <div id="alert-section">
+                <ul>
+                    {% for alert in recent_alerts %}
+                        <li>
+                            <strong>{{ alert.type }}</strong>
+                            at <strong>{{ alert.camera.location }}</strong>
+                            ({{ alert.camera.name }})
+                            <span style="color: #888;">{{ alert.timestamp|date:"H:i:s" }}</span>
+                        </li>
+                    {% empty %}
+                        <li>No recent alerts.</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <!-- <div>Alerts today: <span id="alerts-today">{{ alerts_today }}</span></div> -->
         </section>
     </div>
 
@@ -510,6 +518,34 @@
                     });
                 });
             }
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            function fetchAlerts() {
+                fetch('/alerts/latest/?_=' + new Date().getTime())
+                    .then(response => response.json())
+                    .then(data => {
+                        let alertDiv = document.getElementById('alert-section');
+                        let html = '<ul>';
+                        if (data.alerts.length === 0) {
+                            html += '<li>No recent alerts.</li>';
+                        } else {
+                            data.alerts.forEach(alert => {
+                                html += `<li>
+                                    <strong>${alert.type}</strong>
+                                    at <strong>${alert.location}</strong>
+                                    (${alert.camera})
+                                    <span style="color: #888;">${alert.timestamp}</span>
+                                </li>`;
+                            });
+                        }
+                        html += '</ul>';
+                        alertDiv.innerHTML = html;
+                        document.getElementById('alerts-today').innerText = data.alerts_today;
+                    });
+            }
+            fetchAlerts();
+            setInterval(fetchAlerts, 3000);
         });
     </script>
 </body>

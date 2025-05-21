@@ -37,4 +37,6 @@ urlpatterns = [
     path('add-camera/', add_camera, name='add_camera'),
     path('delete-camera/<int:camera_id>/', delete_camera, name='delete_camera'),
     path('delete-recording/<int:recording_id>/', delete_recording, name='delete_recording'),
+    
+    path('alerts/latest/', latest_alerts, name='latest_alerts'),
 ]

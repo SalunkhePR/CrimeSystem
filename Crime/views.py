@@ -5,13 +5,15 @@ from django.views.decorators.cache import never_cache
 from django.contrib.auth.models import User
 from django.contrib import messages
 from django.http import StreamingHttpResponse, JsonResponse, HttpResponseForbidden
-from .models import Recording, Camera
+from .models import Recording, Camera, Alert
 import cv2 
 import os
 import time
 from ultralytics import YOLO
 import threading
-import platform
+from django.utils import timezone
+from django.utils.timezone import localtime
+from datetime import timedelta
 
 def login_view(request):
     if request.method == 'POST':
@@ -47,6 +49,27 @@ def signup_view(request):
         return redirect('login')
     return render(request,'signup.html')
 
+
+def get_recent_and_today_alerts(user):
+    today = timezone.now().date()
+    cameras = Camera.objects.filter(added_by=user)
+    alerts_today_qs = Alert.objects.filter(camera__in=cameras, timestamp__date=today)
+    alerts_today = alerts_today_qs.count()
+    recent_alerts = (
+        alerts_today_qs.order_by('-timestamp')[:20]
+    )
+    # Group by (type, camera, location), keep up to 3 per group
+    grouped = {}
+    for alert in recent_alerts:
+        key = (alert.type, alert.camera.name, alert.camera.location)
+        grouped.setdefault(key, []).append(alert)
+    flat_alerts = []
+    for alerts in grouped.values():
+        flat_alerts.extend(alerts[:3])
+    flat_alerts = sorted(flat_alerts, key=lambda a: a.timestamp, reverse=True)[:3]
+    return flat_alerts, alerts_today
+
+
 @login_required
 @never_cache
 def home_view(request):
@@ -57,10 +80,14 @@ def home_view(request):
     except:
         pass  # profile might not exist if not set up
 
+    recent_alerts, alerts_today = get_recent_and_today_alerts(request.user)
+    
     context = {
         'user': request.user,
         'profile': user_profile,
         'cameras': cameras,
+        'recent_alerts': recent_alerts,   # Add to context
+        'alerts_today': alerts_today,     # Add to context
     }
     return render(request, 'Homepage.html', context)
 
@@ -167,6 +194,43 @@ def gen_frames(ip_url):
                 cv2.rectangle(frame, (x1, y1), (x2, y2), (255, 0, 0), 2)
                 cv2.putText(frame, label, (x1, y1 - 10),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 0, 0), 2)
+                if conf > 0.7:
+                    try:
+                        ip = ip_url.split("//")[1].split(":")[0]
+                        camera = Camera.objects.get(ip_address=ip)
+                        now = timezone.now()
+                        detected_type = model2.model.names[cls_id]
+                        if detected_type.lower() == "weapon":  # Adjust to your class name
+                            # Count weapon detections in last 30 seconds
+                            recent_count = Alert.objects.filter(
+                                camera=camera,
+                                type=detected_type,
+                                timestamp__gte=now - timedelta(seconds=30)
+                            ).count()
+                            # Every 3rd detection triggers alert (rolling window)
+                            if (recent_count + 1) % 3 == 0:
+                                Alert.objects.create(
+                                    camera=camera,
+                                    type=detected_type,
+                                    timestamp=now,
+                                )
+                        else:
+                            # Usual alert logic for other types
+                            recent = Alert.objects.filter(
+                                camera=camera,
+                                type=detected_type,
+                                timestamp__gte=now - timedelta(seconds=30)
+                            )
+                            if not recent.exists():
+                                Alert.objects.create(
+                                    camera=camera,
+                                    type=detected_type,
+                                    timestamp=now,
+                                )
+                    except Camera.DoesNotExist:
+                        print(f"[ERROR] Camera with IP {ip} not found.")
+                    except Exception as e:
+                        print(f"[ERROR] Alert creation failed: {e}")
 
         except Exception as e:
             print(f"[ERROR] YOLO detection failed: {e}")
@@ -182,6 +246,19 @@ def gen_frames(ip_url):
 
     stream.release()
     print("[INFO] Stream released.")
+    
+@never_cache
+@login_required
+def latest_alerts(request):
+    recent_alerts, alerts_today = get_recent_and_today_alerts(request.user)
+    data = [{
+        'type': alert.type,
+        'camera': alert.camera.name,
+        'location': alert.camera.location,
+        # Convert to local time and format as HH:MM:SS
+        'timestamp': localtime(alert.timestamp).strftime('%H:%M:%S'),
+    } for alert in recent_alerts]
+    return JsonResponse({'alerts': data, 'alerts_today': alerts_today})
 
 # === Django Streaming View ===
 def video_feed(request, camera_id):
